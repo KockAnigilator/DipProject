@@ -1,12 +1,158 @@
 ﻿<Window x:Class="DipProj.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:DipProj"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+        Title="Car Market Analyzer" Height="600" Width="1000"
+        WindowStartupLocation="CenterScreen"
+        Background="#ECF0F1">
+
+    <!-- Ресурсы для WatermarkTextBox и ComboBox -->
+    <Window.Resources>
+        <!-- Цвета для ComboBox -->
+        <SolidColorBrush x:Key="ComboBoxPopupBackground" Color="White"/>
+        <SolidColorBrush x:Key="ComboBoxPopupBorderBrush" Color="#3498DB"/>
+
+        <!-- ControlTemplate для TextBox с водяным знаком -->
+        <ControlTemplate x:Key="WatermarkTextBoxTemplate" TargetType="TextBox">
+            <Border Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}">
+                <Grid>
+                    <ScrollViewer x:Name="PART_ContentHost"
+                                  VerticalAlignment="Center"
+                                  Margin="5"/>
+                    <TextBlock x:Name="WatermarkText"
+                               Text="{TemplateBinding Tag}"
+                               Foreground="Gray"
+                               VerticalAlignment="Center"
+                               Margin="5"
+                               Visibility="Collapsed"/>
+                </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="Text" Value="">
+                    <Setter TargetName="WatermarkText" Property="Visibility" Value="Visible"/>
+                </Trigger>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter TargetName="WatermarkText" Property="Visibility" Value="Collapsed"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <!-- Стиль для ComboBox с водяным знаком -->
+        <Style x:Key="WatermarkComboBox" TargetType="ComboBox">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="ToggleButton"
+                                          Grid.Column="2"
+                                          Focusable="False"
+                                          IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                          ClickMode="Press">
+                                <Path x:Name="Arrow"
+                                      Fill="Black"
+                                      Data="M 0 0 L 4 4 L 8 0 Z"/>
+                            </ToggleButton>
+                            <ContentPresenter x:Name="ContentSite"
+                                              IsHitTestVisible="False"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                              Margin="5,2,25,2"
+                                              VerticalAlignment="Center"
+                                              HorizontalAlignment="Left"/>
+                            <TextBox x:Name="PART_EditableTextBox"
+                                     Template="{StaticResource WatermarkTextBoxTemplate}"
+                                     HorizontalAlignment="Left"
+                                     VerticalAlignment="Center"
+                                     Margin="5,2,25,2"
+                                     Focusable="True"
+                                     Background="Transparent"
+                                     Visibility="Hidden"
+                                     IsReadOnly="{TemplateBinding IsReadOnly}"/>
+                            <Popup x:Name="Popup"
+                                   Placement="Bottom"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   AllowsTransparency="True"
+                                   Focusable="False"
+                                   PopupAnimation="Slide">
+                                <Grid x:Name="DropDown"
+                                      SnapsToDevicePixels="True"
+                                      MinWidth="{TemplateBinding ActualWidth}"
+                                      MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <Border x:Name="DropDownBorder"
+                                            Background="{StaticResource ComboBoxPopupBackground}"
+                                            BorderBrush="{StaticResource ComboBoxPopupBorderBrush}"
+                                            BorderThickness="1"/>
+                                    <ScrollViewer Margin="4,6,4,6"
+                                                  SnapsToDevicePixels="True">
+                                        <StackPanel IsItemsHost="True"
+                                                    KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                    </ScrollViewer>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="HasItems" Value="False">
+                                <Setter TargetName="DropDownBorder" Property="MinHeight" Value="95"/>
+                            </Trigger>
+                            <Trigger Property="IsGrouping" Value="True">
+                                <Setter Property="ScrollViewer.CanContentScroll" Value="False"/>
+                            </Trigger>
+                            <Trigger Property="IsEditable" Value="True">
+                                <Setter Property="IsTabStop" Value="False"/>
+                                <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="ContentSite" Property="Visibility" Value="Hidden"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <!-- Верхняя панель -->
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Background="#2C3E50" Height="50">
+            <Image Source="logo.png" Width="40" Height="40" Margin="10,0"/>
+            <TextBlock Text="Car Market Analyzer" Foreground="White" FontSize="18" VerticalAlignment="Center"/>
+            <TextBox Width="300" Margin="20,0" Template="{StaticResource WatermarkTextBoxTemplate}" Tag="Введите марку или модель"/>
+            <Button Content="Найти" Background="#3498DB" Foreground="White" Margin="10,0" Padding="10,5"/>
+            <Button Content="⭐" FontSize="18" Background="Transparent" Foreground="White" Margin="10,0"/>
+            <Button Content="⚙" FontSize="18" Background="Transparent" Foreground="White" Margin="10,0"/>
+        </StackPanel>
+
+        <!-- Боковая панель -->
+        <StackPanel DockPanel.Dock="Left" Width="200" Background="#2C3E50">
+            <TextBlock Text="Фильтры" Foreground="White" FontSize="16" Margin="0,10"/>
+            <ComboBox Style="{StaticResource WatermarkComboBox}" Tag="Марка"/>
+            <ComboBox Style="{StaticResource WatermarkComboBox}" Tag="Модель"/>
+            <TextBox Template="{StaticResource WatermarkTextBoxTemplate}" Tag="Год выпуска (от)"/>
+            <TextBox Template="{StaticResource WatermarkTextBoxTemplate}" Tag="Год выпуска (до)"/>
+            <TextBox Template="{StaticResource WatermarkTextBoxTemplate}" Tag="Цена (от)"/>
+            <TextBox Template="{StaticResource WatermarkTextBoxTemplate}" Tag="Цена (до)"/>
+            <TextBox Template="{StaticResource WatermarkTextBoxTemplate}" Tag="Пробег (макс)"/>
+            <Button Content="Применить фильтры" Background="#3498DB" Foreground="White" Margin="0,10" Padding="10,5"/>
+        </StackPanel>
+
+        <!-- Основная область -->
+        <ScrollViewer>
+            <WrapPanel Margin="10">
+                <!-- Карточки автомобилей -->
+                <Border Width="300" Height="150" Background="White" CornerRadius="5" Margin="5" Padding="10">
+                    <Grid>
+                        <Image Source="car1.jpg" Width="100" Height="100" HorizontalAlignment="Left"/>
+                        <StackPanel Margin="110,0,0,0">
+                            <TextBlock Text="Toyota Camry" FontSize="16" FontWeight="Bold"/>
+                            <TextBlock Text="2020 год, 50 000 км"/>
+                            <TextBlock Text="1 500 000 ₽" Foreground="#3498DB" FontSize="18"/>
+                            <Button Content="⭐ В избранное" Background="Transparent" Foreground="#3498DB" HorizontalAlignment="Left"/>
+                            <Button Content="Подробнее" Background="#3498DB" Foreground="White" Padding="10,5" HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                <!-- Другие карточки -->
+            </WrapPanel>
+        </ScrollViewer>
+    </DockPanel>
 </Window>
