@@ -7,6 +7,7 @@ using ParserDB.Репозитории;
 
 namespace ParserDB.Services
 {
+    //Нужно будет произвести миграцию и разобраться как она работает, базу данных на SQL Server создал, нужно все собрать воедино
     class CarService
     {
         private readonly CarRepository _carRepository;
